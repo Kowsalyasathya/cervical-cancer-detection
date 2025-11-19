@@ -10,6 +10,8 @@ import tensorflow as tf
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+
 # Config
 UPLOAD_FOLDER = "static/uploads"
 ALLOWED_EXT = {"png", "jpg", "jpeg"}
@@ -22,7 +24,9 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.secret_key = "replace_this_with_a_random_secret"  # change for production
 
 # Load ensemble model once
-model = tf.keras.models.load_model(MODEL_PATH)
+print("Loading model...")
+model = tf.keras.models.load_model(MODEL_PATH, compile=False)
+print("Model loaded successfully!")
 CLASS_LABELS = ["Malignant", "Normal", "Precancerous"]
 
 def allowed_file(filename):
