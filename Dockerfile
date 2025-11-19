@@ -1,20 +1,29 @@
-# Use Python 3.9
 FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install dependencies
+# Install system packages for TensorFlow
+RUN apt-get update && apt-get install -y \
+    libhdf5-serial-dev \
+    libatlas-base-dev \
+    libstdc++6 \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first
 COPY requirements.txt .
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app files
+# Copy rest of the app
 COPY . .
 
-# Copy models folder (important!)
+# Ensure models are copied
 COPY ./models /app/models
 
-# Expose port
+# Expose the web port
 EXPOSE 8080
 
-# Start app
+# Start Gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]

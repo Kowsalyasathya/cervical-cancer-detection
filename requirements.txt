@@ -1,6 +1,6 @@
-flask==2.2.5
-tensorflow-cpu==2.10.0
-pillow
-numpy
-reportlab
+tensorflow==2.10.0
+numpy==1.23.5
+h5py==3.7.0
+flask
 gunicorn
+Pillow
