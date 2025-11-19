@@ -2,12 +2,11 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system packages for TensorFlow
+# Install required system packages for TensorFlow
 RUN apt-get update && apt-get install -y \
-    libhdf5-serial-dev \
-    libatlas-base-dev \
-    libstdc++6 \
+    libhdf5-dev \
     libgomp1 \
+    libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first
@@ -16,14 +15,11 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy rest of the app
+# Copy application files
 COPY . .
 
-# Ensure models are copied
-COPY ./models /app/models
-
-# Expose the web port
+# Expose port
 EXPOSE 8080
 
-# Start Gunicorn
+# Run Gunicorn server
 CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
