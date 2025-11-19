@@ -1,27 +1,20 @@
+# Use Python 3.9
 FROM python:3.9-slim
-
-# Avoid interactive prompts
-ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
-# Copy project files
-COPY . /app
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Upgrade pip
-RUN pip install --no-cache-dir --upgrade pip
+# Copy app files
+COPY . .
 
-# IMPORTANT: Install correct versions
-RUN pip install --no-cache-dir \
-    numpy==1.26.4 \
-    tensorflow-cpu==2.10.0 \
-    pillow \
-    flask \
-    gunicorn \
-    reportlab
+# Copy models folder (important!)
+COPY ./models /app/models
 
-# Expose Render port
+# Expose port
 EXPOSE 8080
 
-# Start Flask via Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+# Start app
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
