@@ -1,0 +1,6 @@
+flask==2.2.5
+tensorflow==2.19.0
+pillow
+numpy
+reportlab
+gunicorn
