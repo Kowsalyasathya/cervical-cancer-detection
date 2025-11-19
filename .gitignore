@@ -4,4 +4,3 @@ __pycache__/
 instance/
 static/uploads/
 .env
-.DS_Store
