@@ -1,4 +1,3 @@
-# app.py
 import os
 import io
 import datetime
@@ -12,6 +11,7 @@ from reportlab.pdfgen import canvas
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
+# Paths
 UPLOAD_FOLDER = "static/uploads"
 MODEL_PATH = "models/ensemble_model.keras"
 ALLOWED_EXT = {"png", "jpg", "jpeg"}
@@ -22,6 +22,7 @@ app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.secret_key = "replace_this_secret"
 
+# ---------------- LOAD MODEL ----------------
 print("Loading model...")
 model = tf.keras.models.load_model(MODEL_PATH, compile=False)
 print("Model loaded successfully!")
@@ -29,7 +30,7 @@ print("Model loaded successfully!")
 CLASS_LABELS = ["Malignant", "Normal", "Precancerous"]
 
 
-# ---------------- IMAGE FUNCTIONS ----------------
+# ---------------- IMAGE PROCESSING ----------------
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXT
 
@@ -55,17 +56,15 @@ def predict_from_path(img_path):
 def generate_pdf(user_info, image_path, prediction, confidences):
     buffer = io.BytesIO()
     c = canvas.Canvas(buffer, pagesize=A4)
-
     width, height = A4
 
     # Title
     c.setFont("Helvetica-Bold", 18)
     c.drawString(40, height - 60, "Cervical Cancer Detection Report")
 
-    # User Info
+    # User info
     c.setFont("Helvetica", 11)
     y = height - 100
-
     for key, val in user_info.items():
         c.drawString(40, y, f"{key}: {val}")
         y -= 18
@@ -75,28 +74,31 @@ def generate_pdf(user_info, image_path, prediction, confidences):
     c.setFont("Helvetica-Bold", 14)
     c.drawString(40, y, f"Prediction: {prediction}")
 
-    # Class Probabilities
+    # Probabilities
     y -= 25
     c.setFont("Helvetica", 11)
     for k, v in confidences.items():
         c.drawString(40, y, f"{k}: {v*100:.2f}%")
         y -= 16
 
-    # Insert Image
+    # Insert Image (Linux-safe)
     try:
         img = Image.open(image_path)
         img.thumbnail((350, 350))
-        img_io = io.BytesIO()
-        img.save(img_io, format="PNG")
-        img_io.seek(0)
 
-        c.drawImage(img_io, width - 380, height - 450,
+        temp_path = "temp_preview.png"
+        img.save(temp_path)
+
+        c.drawImage(temp_path, width - 380, height - 450,
                     width=img.size[0], height=img.size[1])
-    except Exception as e:
-        print("Error inserting image into PDF:", e)
 
+        os.remove(temp_path)
+    except Exception as e:
+        print("Error adding image:", e)
+
+    # Footer
     c.setFont("Helvetica-Oblique", 9)
-    c.drawString(40, 30, f"Generated on: {datetime.datetime.now()}")
+    c.drawString(40, 30, "Generated on: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
     c.save()
     buffer.seek(0)
@@ -109,7 +111,7 @@ def index():
 
     if request.method == "POST":
 
-        # Collect user data
+        # User info
         user_info = {
             "Name": request.form.get("name", ""),
             "Date of Birth": request.form.get("dob", ""),
@@ -121,15 +123,15 @@ def index():
             "Pincode": request.form.get("pincode", "")
         }
 
-        # Handle image upload
+        # Image upload
         if "image" not in request.files:
-            flash("No image uploaded.")
+            flash("No image uploaded")
             return redirect(request.url)
 
         file = request.files["image"]
 
         if file.filename == "":
-            flash("No file selected.")
+            flash("No file selected")
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
@@ -140,7 +142,7 @@ def index():
 
             prediction, confidences = predict_from_path(save_path)
 
-            # Generate PDF report
+            # PDF
             pdf_buffer = generate_pdf(user_info, save_path, prediction, confidences)
             pdf_name = fname.rsplit(".", 1)[0] + "_report.pdf"
             pdf_path = os.path.join(UPLOAD_FOLDER, pdf_name)
@@ -157,7 +159,7 @@ def index():
                 pdf_url=url_for("static", filename=f"uploads/{pdf_name}")
             )
 
-        flash("Invalid file — allowed: png, jpg, jpeg")
+        flash("Invalid file – allowed formats: png, jpg, jpeg")
         return redirect(request.url)
 
     return render_template("index.html")
@@ -165,3 +167,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+
