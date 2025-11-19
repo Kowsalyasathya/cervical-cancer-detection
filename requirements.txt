@@ -1,5 +1,5 @@
 flask==2.2.5
-tensorflow==2.19.0
+tensorflow-cpu==2.10.0
 pillow
 numpy
 reportlab
