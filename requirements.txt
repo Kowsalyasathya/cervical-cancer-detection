@@ -4,3 +4,4 @@ h5py==3.7.0
 flask
 gunicorn
 Pillow
+reportlab
