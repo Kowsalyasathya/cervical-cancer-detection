@@ -172,10 +172,10 @@ This system enables early-stage detection, which may support medical professiona
 
 ## References
 
-Tan, M., & Le, Q. (2019) EfficientNet
+[1] M. Tan and Q. V. Le, “EfficientNet: Rethinking model scaling for convolutional neural networks,” Proceedings of the 36th International Conference on Machine Learning (ICML), 2019.
 
-Howard et al. (2017) MobileNet
+[2] A. G. Howard, M. Zhu, B. Chen, D. Kalenichenko, W. Wang, T. Weyand, M. Andreetto, and H. Adam, “MobileNets: Efficient convolutional neural networks for mobile vision applications,” arXiv preprint arXiv:1704.04861, 2017.
 
-Zhang, J., et al. (2020) Deep Learning Cervical Cancer Diagnosis
+[3] J. Zhang, F. Xie, Y. Qian, and X. Xie, “Cervical cancer diagnosis using deep convolutional neural networks,” IEEE Access, vol. 8, pp. 91245–91256, 2020.
 
-Zhou, K. & Chen (2024) Ensemble Learning for Medical Images
+[4] K. Zhou and X. Chen, “Ensemble learning for medical image classification: A comprehensive review,” Medical Image Analysis, 2021.
